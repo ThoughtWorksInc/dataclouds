@@ -4,7 +4,7 @@ date: 2016-06-03 17:38:38
 tags:
 ---
 
-最近在知乎看到一个[问题](https://www.zhihu.com/question/46988176)：
+最近知乎上有个[问题](https://www.zhihu.com/question/46988176)：
 
 > 我听说 Spark 最近很火，要搞大数据的话就得学 Spark 。Spark 是支持 Java ，但又有人说要是不用 Scala 搞 Spark ，就好像参加残奥会一样。
 >
