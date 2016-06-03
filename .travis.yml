@@ -1,0 +1,19 @@
+language: node_js
+
+node_js:
+  - "6.2"
+
+install:
+  - npm install -g hexo-cli
+  - npm install
+
+cache:
+  directories:
+    - $HOME/.npm/
+
+before_deploy:
+  - git config credential.https://github.com.username $PERSONAL_ACCESS_KEY
+
+deploy:
+  provider: script
+  script: hexo d -g
