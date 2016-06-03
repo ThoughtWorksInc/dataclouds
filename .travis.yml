@@ -20,4 +20,7 @@ before_deploy:
 deploy:
   skip_cleanup: true
   provider: script
-  script: hexo d -g
+  script:
+    - git config credential.https://github.com.username
+    - git config core.askPass
+    - hexo d -g
