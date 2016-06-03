@@ -13,6 +13,8 @@ cache:
 
 before_deploy:
   - git config credential.https://github.com.username $PERSONAL_ACCESS_KEY
+  - git log --max-count=1 --format=format:%an | xargs -0 -n 1 git config --global -- user.name
+  - git log --max-count=1 --format=format:%ae | xargs -0 -n 1 git config --global -- user.email
 
 deploy:
   skip_cleanup: true
