@@ -15,5 +15,6 @@ before_deploy:
   - git config credential.https://github.com.username $PERSONAL_ACCESS_KEY
 
 deploy:
+  skip_cleanup: true
   provider: script
   script: hexo d -g
