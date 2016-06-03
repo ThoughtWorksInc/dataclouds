@@ -3,10 +3,10 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
+title: DataClouds@ThoughtWorks
 subtitle:
-description:
-author: John Doe
+description: ThoughtWorks DataClouds Team Blog
+author: DataClouds
 language:
 timezone:
 
@@ -63,11 +63,11 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: yelee
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
-deploy:
-  type: git
-  repository: https://github.com/ThoughtWorksInc/dataclouds.git
-  branch: gh-pages
+# deploy:
+#   type: git
+#   repository: https://github.com/ThoughtWorksInc/dataclouds.git
+#   branch: gh-pages
