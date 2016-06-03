@@ -22,10 +22,9 @@ deploy:
   skip_cleanup: true
   provider: script
   script: >
-    git --version &&
     cd public &&
     git init . &&
     git add . &&
     git commit -m "Update blogs" &&
     (git push --quiet -u https://"$PERSONAL_ACCESS_TOKEN"@github.com/ThoughtWorksInc/dataclouds.git HEAD:gh-pages --force > /dev/null 2>&1) &&
-    echo ""
+    echo "Workaround for the trailing space"
