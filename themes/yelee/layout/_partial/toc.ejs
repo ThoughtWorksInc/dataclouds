@@ -1,0 +1,52 @@
+<div id="toc" class="toc-article">
+    <strong class="toc-title"><%= __('toc.title') %></strong>
+    <%- toc(post.content) %>
+</div>
+<style>
+    .left-col .switch-btn {
+        display: none;
+    }
+    .left-col .switch-area {
+        display: none;
+    }
+</style>
+
+<input type="button" id="tocButton" value="<%= __('toc.hide') %>"  title="<%= __('tooltip.tocButton') %>">
+<script>
+    var valueHide = "<%= __('toc.hide') %>";
+    var valueShow = "<%= __('toc.show') %>";
+
+    if ($(".left-col").is(":hidden")) {
+        $("#tocButton").attr("value", valueShow);
+    }
+
+    $("#tocButton").click(function() {
+        if ($("#toc").is(":hidden")) {
+            $("#tocButton").attr("value", valueHide);
+            $("#toc").slideDown(320);
+            $(".switch-btn, .switch-area").fadeOut(300);
+        }
+        else {
+            $("#tocButton").attr("value", valueShow);
+            $("#toc").slideUp(350);
+            $(".switch-btn, .switch-area").fadeIn(500);
+        }
+    })
+
+    if ($(".toc").length < 1) {
+        $("#toc, #tocButton").hide();
+        $(".switch-btn, .switch-area").show();
+    }
+</script>
+
+<% if (theme.toc_nowrap) { %>
+
+    <script>
+        $(document).ready(function() {
+            $(".toc li a").mouseover(function() {
+                var title = $(this).find('.toc-text').text();
+                $(this).attr("title", title);
+            });
+        })
+    </script>
+<% } %>
