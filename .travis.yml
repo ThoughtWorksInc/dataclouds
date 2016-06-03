@@ -28,4 +28,4 @@ deploy:
     git init . &&
     git add . &&
     git commit -m "Update blogs" &&
-    git push -u https://github.com/ThoughtWorksInc/dataclouds.git HEAD:gh-pages --force
+    git push -u https://github.com/ThoughtWorksInc/dataclouds.git HEAD:gh-pages --force 
