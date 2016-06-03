@@ -13,6 +13,7 @@ cache:
 
 before_deploy:
   - git config --global credential.https://github.com.username "$PERSONAL_ACCESS_KEY"
+  - git config --global core.askPass true
   - git log --max-count=1 --format=format:%an | xargs -0 -n 1 git config --global -- user.name
   - git log --max-count=1 --format=format:%ae | xargs -0 -n 1 git config --global -- user.email
 
