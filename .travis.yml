@@ -27,7 +27,5 @@ deploy:
     git init . &&
     git add . &&
     git commit -m "Update blogs" &&
-    git config credential.username "$PERSONAL_ACCESS_TOKEN" &&
-    git config core.askPass /usr/bin/true &&
-    (git push --quiet -u https://github.com/ThoughtWorksInc/dataclouds.git HEAD:gh-pages --force > /dev/null 2>&1) &&
+    (git push --quiet -u https://"$PERSONAL_ACCESS_TOKEN"@github.com/ThoughtWorksInc/dataclouds.git HEAD:gh-pages --force > /dev/null 2>&1) &&
     echo ""
