@@ -22,11 +22,12 @@ deploy:
   skip_cleanup: true
   provider: script
   script: >
+    git --version &&
     cd public &&
     git init . &&
     git add . &&
     git commit -m "Update blogs" &&
     git config credential.https://github.com.username "$PERSONAL_ACCESS_TOKEN" &&
     git config core.askPass /usr/bin/true &&
-    git push --quiet -u https://"$PERSONAL_ACCESS_TOKEN"@github.com/ThoughtWorksInc/dataclouds.git HEAD:gh-pages --force &&
-    echo " "
+    (git push --quiet -u https://"$PERSONAL_ACCESS_TOKEN"@github.com/ThoughtWorksInc/dataclouds.git HEAD:gh-pages --force > /dev/null 2>&1) &&
+    echo ""
