@@ -12,8 +12,8 @@ cache:
     - $HOME/.npm/
 
 before_deploy:
-  - git config --global credential.https://github.com.username "$PERSONAL_ACCESS_TOKEN"
-  - git config --global core.askPass /usr/bin/true
+  # - git config --global credential.https://github.com.username "$PERSONAL_ACCESS_TOKEN"
+  # - git config --global core.askPass /usr/bin/true
   - git log --max-count=1 --format=format:%an | xargs -0 -n 1 git config --global -- user.name
   - git log --max-count=1 --format=format:%ae | xargs -0 -n 1 git config --global -- user.email
 
@@ -28,4 +28,4 @@ deploy:
     git init . &&
     git add . &&
     git commit -m "Update blogs" &&
-    git push -u https://github.com/ThoughtWorksInc/dataclouds.git HEAD:gh-pages --force 
+    git push --quiet -u https://$PERSONAL_ACCESS_TOKEN@github.com/ThoughtWorksInc/dataclouds.git HEAD:gh-pages --force
