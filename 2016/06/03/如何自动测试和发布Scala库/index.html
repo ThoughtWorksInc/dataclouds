@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    
+    <title>如何自动测试和发布Scala库 | DataClouds@ThoughtWorks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="" />
+    
+    <meta name="description" content="最近知乎上有个问题：
+
+我听说 Spark 最近很火，要搞大数据的话就得学 Spark 。Spark 是支持 Java ，但又有人说要是不用 Scala 搞 Spark ，就好像参加残奥会一样。
+我想成为健全人，于是我就去学 Scala 。我看到Github上有很多 Scala 开源库。它们都有自动测试的功能。
+比如 README 页面上有个小图标（build passing）表示当前版本是否通过">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何自动测试和发布Scala库">
+<meta property="og:url" content="http://http://thoughtworksinc.github.io/2016/06/03/如何自动测试和发布Scala库/index.html">
+<meta property="og:site_name" content="DataClouds@ThoughtWorks">
+<meta property="og:description" content="最近知乎上有个问题：
+
+我听说 Spark 最近很火，要搞大数据的话就得学 Spark 。Spark 是支持 Java ，但又有人说要是不用 Scala 搞 Spark ，就好像参加残奥会一样。
+我想成为健全人，于是我就去学 Scala 。我看到Github上有很多 Scala 开源库。它们都有自动测试的功能。
+比如 README 页面上有个小图标（build passing）表示当前版本是否通过">
+<meta property="og:image" content="http://http://thoughtworksinc.github.io/dataclouds/2016/06/03/如何自动测试和发布Scala库/build-passing-icon.png">
+<meta property="og:updated_time" content="2016-06-19T16:11:37.279Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何自动测试和发布Scala库">
+<meta name="twitter:description" content="最近知乎上有个问题：
+
+我听说 Spark 最近很火，要搞大数据的话就得学 Spark 。Spark 是支持 Java ，但又有人说要是不用 Scala 搞 Spark ，就好像参加残奥会一样。
+我想成为健全人，于是我就去学 Scala 。我看到Github上有很多 Scala 开源库。它们都有自动测试的功能。
+比如 README 页面上有个小图标（build passing）表示当前版本是否通过">
+<meta name="twitter:image" content="http://http://thoughtworksinc.github.io/dataclouds/2016/06/03/如何自动测试和发布Scala库/build-passing-icon.png">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/dataclouds/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/dataclouds/vendor/titillium-web/styles.css">
+    <link rel="stylesheet" href="/dataclouds/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/dataclouds/css/style.css">
+
+    <script src="/dataclouds/vendor/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/dataclouds/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <link rel="stylesheet" href="/dataclouds/vendor/scrollLoading/style.css">
+    
+    
+    
+
+</head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/dataclouds/" class="logo"></a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/dataclouds/">Inici</a>
+                                </li>
+                            
+                                        
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/dataclouds/about/index.html">Quant a</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Cercar" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'categories',
+            TAGS: 'etiquetes',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/dataclouds/',
+        CONTENT_URL: '/dataclouds/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/dataclouds/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    Sense categoria
+    </h1>
+</div>
+                        <div class="main-body-content">
+                            <article id="post-如何自动测试和发布Scala库" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        如何自动测试和发布Scala库
+        </h1>
+    
+
+            </header>
+        
+        <div class="article-subtitle">
+            <a href="/dataclouds/2016/06/03/如何自动测试和发布Scala库/" class="article-date">
+    <time datetime="2016-06-03T17:38:38.000Z" itemprop="datePublished">2016-06-03</time>
+</a>
+            
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <p>最近知乎上有个<a href="https://www.zhihu.com/question/46988176" target="_blank" rel="external">问题</a>：</p>
+<blockquote>
+<p>我听说 Spark 最近很火，要搞大数据的话就得学 Spark 。Spark 是支持 Java ，但又有人说要是不用 Scala 搞 Spark ，就好像参加残奥会一样。</p>
+<p>我想成为健全人，于是我就去学 Scala 。我看到Github上有很多 Scala 开源库。它们都有自动测试的功能。</p>
+<p>比如 README 页面上有个小图标（build passing）表示当前版本是否通过了测试。</p>
+<img src="/dataclouds/2016/06/03/如何自动测试和发布Scala库/build-passing-icon.png" alt="build-passing-icon.png" title="">
+<p>再如，每当有人提交 Pull Request 的时候，也会有个小勾勾报告这次修改能不能通过测试。</p>
+<img src="/dataclouds/2016/06/03/如何自动测试和发布Scala库/check-icon.png" alt="check-icon.png" title="">
+<p>还有，这些库还会发布到 Maven 中心仓库，我如果要在自己的项目使用它们的话，只要在自己的 sbt 配置中添加依赖就可以自动下载了。</p>
+<p>这些自动测试和发布的过程是怎么做到的呢？</p>
+</blockquote>
+<p>解答如下：</p>
+<p>可以用 <a href="https://travis-ci.org/" target="_blank" rel="external">Travis CI</a> 和 <a href="https://github.com/ThoughtWorksInc/sbt-best-practice" target="_blank" rel="external">sbt-best-practice</a> 自动测试和发布 Scala 库。</p>
+<p>Travis CI 是个持续集成服务。一旦你的 Github 仓库启用了 Travis CI ，每当有人在仓库推送代码或者提交 Pull Request 时，就会触发 Travis CI 执行一段脚本。</p>
+<p>对于 Scala 项目来说，一般用 <a href="http://www.scala-sbt.org/" target="_blank" rel="external">sbt</a> 管理构建过程，所以我们会希望 Travis CI 被触发以后，执行测试和发布的 sbt 任务。这样就可以完成题主要求的所有功能了。</p>
+<h2 id="第一步：启用-Travis-CI"><a href="#第一步：启用-Travis-CI" class="headerlink" title="第一步：启用 Travis CI"></a>第一步：启用 Travis CI</h2><p>Travis CI 的构建过程配置在 <code>.travis.yml</code> 文件中。Scala 库的 <code>.travis.yml</code> 应该写成这样：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 告诉 Travis CI 应该用已经安装了 Scala 的系统镜像来执行本文件中配置的脚本</span></span><br><span class="line"><span class="attr">language:</span> scala</span><br><span class="line"></span><br><span class="line"><span class="comment"># 应执行 sbt test 任务来进行自动测试</span></span><br><span class="line"><span class="attr">script:</span></span><br><span class="line"><span class="bullet">  -</span> sbt test</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果存在 deploy.sbt 文件，就执行 sbt "release with-defaults" 任务来进行自动发布</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line"><span class="attr">  skip_cleanup:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">  provider:</span> script</span><br><span class="line"><span class="attr">  script:</span> sbt <span class="string">"release with-defaults"</span></span><br><span class="line"><span class="attr">  on:</span></span><br><span class="line"><span class="attr">    condition:</span> -e ./deploy.sbt</span><br><span class="line"><span class="attr">    all_branches:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>有了 <code>.travis.yml</code>，你还需要访问<a href="https://travis-ci.org/profile" target="_blank" rel="external">你在 Travis CI 的 Profile 页面</a>，为 Github 仓库启用 Travis CI。</p>
+<img src="/dataclouds/2016/06/03/如何自动测试和发布Scala库/enable-travis-ci.png" alt="enable-travis-ci.png" title="">
+<p>然后，CI 会自动执行 <code>sbt test</code> 测试每次提交。此外，CI 还会检测 <code>deploy.sbt</code> 是否存在，如果存在，就执行 <code>sbt &quot;release with-defaults&quot;</code> 任务来进行自动发布。</p>
+<h2 id="第二步：添加-Sbt-插件"><a href="#第二步：添加-Sbt-插件" class="headerlink" title="第二步：添加 Sbt 插件"></a>第二步：添加 Sbt 插件</h2><p><code>sbt test</code> 和 <code>sbt &quot;release with-defaults&quot;</code> 两个任务由 Sbt 插件提供。编辑 <code>project/plugins.sbt</code> ，启用 <a href="https://github.com/ThoughtWorksInc/sbt-best-practice" target="_blank" rel="external">sbt-best-practice</a> 插件，这些任务就会自动配置好。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">addSbtPlugin(<span class="string">"com.thoughtworks.sbt-best-practice"</span> % <span class="string">"sbt-best-practice"</span> % <span class="string">"latest.release"</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="添加测试框架"><a href="#添加测试框架" class="headerlink" title="添加测试框架"></a>添加测试框架</h2><p>对于自动测试，你还需要添加测试框架依赖并编写自己的测试用例。</p>
+<p>在 Scala 社区，常用的测试框架有 <a href="http://junit.org/" target="_blank" rel="external">JUnit</a> 、<a href="http://www.scalatest.org/" target="_blank" rel="external">ScalaTest</a>、<a href="https://etorreborre.github.io/specs2/" target="_blank" rel="external">Specs2</a> 和 <a href="https://github.com/lihaoyi/utest" target="_blank" rel="external">µTest</a>。</p>
+<p>以 µTest 为例，编辑或创建 <code>build.sbt</code>:</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">libraryDependencies += <span class="string">"com.lihaoyi"</span> %% <span class="string">"utest"</span> % <span class="string">"0.4.3"</span> % <span class="string">"test"</span></span><br><span class="line"></span><br><span class="line">testFrameworks += <span class="keyword">new</span> <span class="type">TestFramework</span>(<span class="string">"utest.runner.Framework"</span>)</span><br></pre></td></tr></table></figure>
+<p>这样一来，在 <code>src/test/scala</code> 编写的测试用例就会被 <code>sbt test</code> 所执行了。</p>
+<h2 id="第三步：提供自动发布时的项目信息"><a href="#第三步：提供自动发布时的项目信息" class="headerlink" title="第三步：提供自动发布时的项目信息"></a>第三步：提供自动发布时的项目信息</h2><h3 id="开源许可证"><a href="#开源许可证" class="headerlink" title="开源许可证"></a>开源许可证</h3><p>要发布到 Maven 中心仓库的软件必须是开源软件。你需要准备一个 <code>LICENSE</code> 文件。比如我们常用的 Apache License 的内容可以在这里找到： <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="external">https://www.apache.org/licenses/LICENSE-2.0</a></p>
+<h3 id="组织名和项目名"><a href="#组织名和项目名" class="headerlink" title="组织名和项目名"></a>组织名和项目名</h3><p>当然，你还需要指定库的名称。 sbt 项目用组织名外加项目名的组合作为唯一标识。编辑或创建 <code>build.sbt</code> 设置如下：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">organizatio := <span class="string">"com.thoughtworks.q"</span></span><br><span class="line"></span><br><span class="line">name := <span class="string">"q"</span></span><br></pre></td></tr></table></figure>
+<h3 id="版本号"><a href="#版本号" class="headerlink" title="版本号"></a>版本号</h3><p>版本号应该保存在 <code>version.sbt</code> 中：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">version in <span class="type">ThisBuild</span> := <span class="string">"1.0.0-SNAPSHOT"</span></span><br></pre></td></tr></table></figure>
+<h2 id="第四步：设置自动发布时的密码、密钥等鉴权机制"><a href="#第四步：设置自动发布时的密码、密钥等鉴权机制" class="headerlink" title="第四步：设置自动发布时的密码、密钥等鉴权机制"></a>第四步：设置自动发布时的密码、密钥等鉴权机制</h2><h3 id="申请-Sonatype-帐号"><a href="#申请-Sonatype-帐号" class="headerlink" title="申请 Sonatype 帐号"></a>申请 Sonatype 帐号</h3><p>Maven 中心仓库中的大部分软件都是从 <a href="http://www.sonatype.org/" target="_blank" rel="external">Sonatype</a> 上同步过来的。所以，只要你把项目发布到 Sonatype ，就会自动发布到 Maven 中心仓库。</p>
+<p>首先，你需要注册一个 Sonatype 帐号：</p>
+<p><a href="https://issues.sonatype.org/secure/Signup!default.jspa" target="_blank" rel="external">https://issues.sonatype.org/secure/Signup!default.jspa</a></p>
+<p>然后，填写表单，申请权限以发布项目到 Sonatype ：</p>
+<p><a href="https://issues.sonatype.org/secure/CreateIssue.jspa?issuetype=21&amp;pid=10134" target="_blank" rel="external">https://issues.sonatype.org/secure/CreateIssue.jspa?issuetype=21&amp;pid=10134</a></p>
+<img src="/dataclouds/2016/06/03/如何自动测试和发布Scala库/create-sonatype-issue.png" alt="create-sonatype-issue.png" title="">
+<p>你可以参照我申请时的格式来填写：</p>
+<p><a href="https://issues.sonatype.org/browse/OSSRH-22779" target="_blank" rel="external">https://issues.sonatype.org/browse/OSSRH-22779</a></p>
+<h3 id="生成和上传-PGP-密钥"><a href="#生成和上传-PGP-密钥" class="headerlink" title="生成和上传 PGP 密钥"></a>生成和上传 PGP 密钥</h3><p>发布到 Sonatype 的软件必须用 PGP 签名。所以你得生成一对 PGP 密钥。</p>
+<p>你可以用 <a href="https://www.gnupg.org/" target="_blank" rel="external">GnuPG</a> 来生成密钥。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gpg --gen-key</span><br><span class="line">gpg --export --armor --output pubring.asc</span><br><span class="line">gpg --export-secret-keys --armor --output secring.asc</span><br></pre></td></tr></table></figure>
+<p>填写密钥所需的信息，其中一个步骤需要填写加密口令，直接按回车填写空口令即可。<br>当前目录就会出现私钥文件 <code>secring.asc</code> 和公钥文件 <code>pubring.asc</code> 。</p>
+<p>接下来，你需要上传公钥。</p>
+<p>访问 <a href="https://pgp.mit.edu/" target="_blank" rel="external">https://pgp.mit.edu/</a> ，把 <code>pubring.asc</code> 的内容粘贴到 “Enter ASCII-armored PGP key here:” 处，然后点击“Submit this key to the keyserver!”。</p>
+<img src="/dataclouds/2016/06/03/如何自动测试和发布Scala库/upload-pgp-key.png" alt="upload-pgp-key.png" title="">
+<h3 id="生成-Github-Personal-Access-Token"><a href="#生成-Github-Personal-Access-Token" class="headerlink" title="生成 Github Personal Access Token"></a>生成 Github Personal Access Token</h3><p>在发布 Scala 库时， CI 会通过 <code>sbt-best-practice</code> 插件会自动给 Github 仓库中的版本设置一个版本 tag 。<br>所以需要为 CI 设置 Github 仓库的修改权限。这可以通过 Github Personal Access Token 实现。</p>
+<p>访问 <a href="https://github.com/settings/tokens/new" target="_blank" rel="external">https://github.com/settings/tokens/new</a> ，然后填写 Token description 并勾选 <code>public_repo</code> 权限。</p>
+<img src="/dataclouds/2016/06/03/如何自动测试和发布Scala库/create-github-personal-access-token.png" alt="create-github-personal-access-token.png" title="">
+<p>Github 会生成一段类似 <code>74bf3a944382ec8e07625a6e55eb05a416ca585d</code> 的 Personal Access Token 。请保存这段 Personal Access Token 供稍后使用。</p>
+<h3 id="创建一个-Secret-Gist-保存所有密码和密钥"><a href="#创建一个-Secret-Gist-保存所有密码和密钥" class="headerlink" title="创建一个 Secret Gist 保存所有密码和密钥"></a>创建一个 Secret Gist 保存所有密码和密钥</h3><p>上述所有的这些密码和密钥都可以通过 Sbt 来设置。但是，我觉得你恐怕不会愿意把你的密码放在公共仓库中。</p>
+<p>所以我建议你把密码和密钥放在只有自己才知道的 Secret Gist 中。然后把 Secret Gist 的 URL 设置在 Travis CI 的秘密环境变量中。那么， CI 运行 sbt 任务时，就可以读取环境变量访问 Secret Gist 获得所有这些密码和密钥。</p>
+<p>访问 <a href="https://gist.github.com/" target="_blank" rel="external">https://gist.github.com/</a> ，点击“Add file”按钮，添加三个文件：</p>
+<h4 id="secret-sbt"><a href="#secret-sbt" class="headerlink" title="secret.sbt"></a><code>secret.sbt</code></h4><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 此处应填写刚才生成的 Github Personal Access Token</span></span><br><span class="line">githubCredential in <span class="type">Global</span> := <span class="type">PersonalAccessToken</span>(<span class="string">"74bf3a944382ec8e07625a6e55eb05a416ca585d"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 此处应填写你刚才注册 Sonatype 时使用的帐号和密码</span></span><br><span class="line">credentials in <span class="type">Global</span> += <span class="type">Credentials</span>(<span class="string">"Sonatype Nexus Repository Manager"</span>, <span class="string">"oss.sonatype.org"</span>, <span class="string">"你的 Sonatype 帐号"</span>, <span class="string">"你的 Sonatype 密码"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> currentDirectory = file(sourcecode.<span class="type">File</span>()).getParentFile</span><br><span class="line"></span><br><span class="line">pgpSecretRing := currentDirectory / <span class="string">"secring.asc"</span></span><br><span class="line"></span><br><span class="line">pgpPublicRing := currentDirectory / <span class="string">"pubring.asc"</span></span><br><span class="line"></span><br><span class="line">pgpPassphrase := <span class="type">Some</span>(<span class="type">Array</span>.empty)</span><br></pre></td></tr></table></figure>
+<h4 id="secring-asc"><a href="#secring-asc" class="headerlink" title="secring.asc"></a><code>secring.asc</code></h4><p>请把 GnuPG 生成的 <code>secring.asc</code> 内容复制到此处。</p>
+<h4 id="pubring-asc"><a href="#pubring-asc" class="headerlink" title="pubring.asc"></a><code>pubring.asc</code></h4><p>请把 GnuPG 生成的 <code>pubring.asc</code> 内容复制到此处。</p>
+<p>最后点击“Create secret gist”按钮，生成这个 Secret Gist 。</p>
+<p>请记下新生成的 Secret Gist 网址，类似 <a href="https://gist.github.com/Atry/xxxxxxxxxxxxxxxxxxxx" target="_blank" rel="external">https://gist.github.com/Atry/xxxxxxxxxxxxxxxxxxxx</a></p>
+<h3 id="创建-Travis-CI-的秘密环境变量"><a href="#创建-Travis-CI-的秘密环境变量" class="headerlink" title="创建 Travis CI 的秘密环境变量"></a>创建 Travis CI 的秘密环境变量</h3><p>在你的 Travis CI 项目设置面板中添加 SECRET_GIST 环境变量，设为你刚生成的 Secret Gist 网址 <a href="https://gist.github.com/Atry/xxxxxxxxxxxxxxxxxxxx" target="_blank" rel="external">https://gist.github.com/Atry/xxxxxxxxxxxxxxxxxxxx</a></p>
+<img src="/dataclouds/2016/06/03/如何自动测试和发布Scala库/enable-travis-ci.png" alt="enable-travis-ci.png" title="">
+<h3 id="创建-deploy-sbt-读取-SECRET-GIST-环境变量"><a href="#创建-deploy-sbt-读取-SECRET-GIST-环境变量" class="headerlink" title="创建 deploy.sbt 读取 SECRET_GIST 环境变量"></a>创建 <code>deploy.sbt</code> 读取 <code>SECRET_GIST</code> 环境变量</h3><p><code>deploy.sbt</code> 包含了发布 Scala 库时的设置。我们启用 <code>Travis</code> 和 <code>SonatypeRelease</code> ，然后读取 <code>SECRET_GIST</code> 环境变量并加载 Secret Gist 中的 <code>secret.sbt</code> 文件</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">enablePlugins(<span class="type">Travis</span>)</span><br><span class="line"></span><br><span class="line">enablePlugins(<span class="type">SonatypeRelease</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">lazy</span> <span class="keyword">val</span> secret = project settings(publishArtifact := <span class="literal">false</span>) configure &#123; secret =&gt;</span><br><span class="line">  sys.env.get(<span class="string">"SECRET_GIST"</span>) <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="type">Some</span>(gitUri) =&gt;</span><br><span class="line">      secret.addSbtFilesFromGit(gitUri, file(<span class="string">"secret.sbt"</span>))</span><br><span class="line">    <span class="keyword">case</span> <span class="type">None</span> =&gt;</span><br><span class="line">      secret</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="日常使用注意事项"><a href="#日常使用注意事项" class="headerlink" title="日常使用注意事项"></a>日常使用注意事项</h2><h3 id="关于-deploy-sbt-disabled"><a href="#关于-deploy-sbt-disabled" class="headerlink" title="关于 deploy.sbt.disabled"></a>关于 <code>deploy.sbt.disabled</code></h3><p>把 <code>.travis.yml</code> 、 <code>project/plugins.sbt</code> 、 <code>LICENSE</code> 、 <code>build.sbt</code> 、 <code>deploy.sbt</code> 几个文件推送到 Git 仓库后， CI 会触发自动测试和自动发布。每次发布成功后，<code>sbt-best-practice</code> 会自动把 <code>deploy.sbt</code> 改名为 <code>deploy.sbt.disabled</code> ，因此，如果将来再有提交，就只会触发自动测试，而不会触发自动发布。如果你想发布下一个新版本，手动把 <code>deploy.sbt.disabled</code> 改名为 <code>deploy.sbt</code> 就能触发 CI 执行自动发布流程了。</p>
+<h3 id="关于版本号"><a href="#关于版本号" class="headerlink" title="关于版本号"></a>关于版本号</h3><p>一旦触发发布，CI 会自动修改 <code>version.sbt</code> 中记录的版本号。比如你的仓库中原本版本号是 1.0.0-SNAPSHOT ，触发自动发布时， CI 会首先把版本号改为 1.0.0 然后标上 GIT tag，然后再把版本号改为 1.0.1-SNAPSHOT 。如果你希望下次发布的版本号是 1.5.0 ，那么你需要在触发下一次自动发布以前，手动把 <code>version.sbt</code> 中记录的版本号改为 1.5.0-SNAPSHOT 。</p>
+<h2 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h2><ul>
+<li><a href="http://scala-lang.org/" target="_blank" rel="external">Scala</a> - 一门多范式的编程语言，也是本文的涉及的全部技术的基础。</li>
+<li><a href="https://github.com/ThoughtWorksInc/scala-project-template" target="_blank" rel="external">scala-project-template</a> - Scala项目模板，类似本文描述的结构，但改用私有 Git 仓库来保存密码而非 Secret Gist，因此 <code>deploy.sbt</code> 内容稍有不同。</li>
+<li><a href="https://github.com/ThoughtWorksInc/Q.scala" target="_blank" rel="external">Q.scala</a> - 完整设置了自动测试和发布的 Scala 库。</li>
+<li><a href="http://www.scala-sbt.org/" target="_blank" rel="external">Sbt</a> - Simple Build Tool, Scala 社区最为广泛实用的构建工具。</li>
+<li><a href="https://github.com/ThoughtWorksInc/sbt-best-practice" target="_blank" rel="external">sbt-best-practice</a> - Sbt 插件，提供了本文提及的全部发布功能。</li>
+<li><a href="https://github.com/lihaoyi/utest" target="_blank" rel="external">µTest</a> - 一个简单好用的 Scala 测试框架。</li>
+<li><a href="https://travis-ci.org/" target="_blank" rel="external">Travis CI</a> - 为 Github 项目提供了持续集成服务。除了 Travis CI ，其他持续集成方案还有我司的 <a href="https://www.go.cd/" target="_blank" rel="external">GoCD</a> 、 <a href="https://jenkins.io/" target="_blank" rel="external">Jenkins</a> 、 <a href="https://www.atlassian.com/software/bamboo" target="_blank" rel="external">Bamboo</a> 等。相比这些方案，Travis CI 很精简，完全省略了 pipeline 的概念，我很喜欢。开源项目可以免费使用 Travis CI。我见过的开源项目中最常见的持续集成服务就是 Travis CI。</li>
+</ul>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://http://thoughtworksinc.github.io/dataclouds/2016/06/03/如何自动测试和发布Scala库/" data-id="cipmsk7dn0003mid3mhd3aj0k" class="article-share-link"><i class="fa fa-share"></i>Compartir</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>seguir:</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="/dataclouds/" target="_blank">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/dataclouds/" target="_blank">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="google-plus" href="/dataclouds/" target="_blank">
+                        <i class="icon fa fa-google-plus"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/ppoffice/hexo-theme-hueman" target="_blank">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/dataclouds/" target="_blank">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/dataclouds/" target="_blank">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/dataclouds/2016/06/06/走进数据时代/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">més nou</strong>
+        <p class="article-nav-title">
+        
+            走进数据时代
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/dataclouds/2016/06/03/decrypt-deep-learning/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">antic</strong>
+        <p class="article-nav-title">写给程序员的深度学习 之 深度学习解密</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">recents</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/dataclouds/2016/06/16/不平衡数据处理/" class="thumbnail">
+    
+    
+        <span style="background-image:url(http://upload-images.jianshu.io/upload_images/50828-6db9a3815b9fa203.png?imageMogr2/auto-orient/strip%7CimageView2/2)" alt="不平衡数据处理" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/dataclouds/2016/06/16/不平衡数据处理/" class="title">不平衡数据处理</a></p>
+                            <p class="item-date"><time datetime="2016-06-16T19:34:12.000Z" itemprop="datePublished">2016-06-16</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/dataclouds/2016/06/06/走进数据时代/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/dataclouds/2016/06/06/走进数据时代/" class="title">走进数据时代</a></p>
+                            <p class="item-date"><time datetime="2016-06-06T11:01:41.000Z" itemprop="datePublished">2016-06-06</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/dataclouds/2016/06/03/如何自动测试和发布Scala库/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/dataclouds/2016/06/03/如何自动测试和发布Scala库/build-passing-icon.png)" alt="如何自动测试和发布Scala库" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/dataclouds/2016/06/03/如何自动测试和发布Scala库/" class="title">如何自动测试和发布Scala库</a></p>
+                            <p class="item-date"><time datetime="2016-06-03T17:38:38.000Z" itemprop="datePublished">2016-06-03</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/dataclouds/2016/06/03/decrypt-deep-learning/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/dataclouds/2016/06/03/decrypt-deep-learning/0.png)" alt="写给程序员的深度学习 之 深度学习解密" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/dataclouds/2016/06/03/decrypt-deep-learning/" class="title">写给程序员的深度学习 之 深度学习解密</a></p>
+                            <p class="item-date"><time datetime="2016-06-03T16:33:06.000Z" itemprop="datePublished">2016-06-03</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">arxius</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/dataclouds/archives/2016/06/">June 2016</a><span class="archive-list-count">4</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">etiquetes</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/dataclouds/tags/Deep-Learning/">Deep Learning</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">etiqueta cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/dataclouds/tags/Deep-Learning/" style="font-size: 10px;">Deep Learning</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">links</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io">Hexo</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/dataclouds/" class="logo"></a>
+                </h1>
+                <p>&copy; 2016 DataClouds</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://http://thoughtworksinc.github.io/dataclouds/2016/06/03/如何自动测试和发布Scala库/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+    
+        <script src="/dataclouds/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+    
+        <script src="/dataclouds/vendor/scrollLoading/jquery.scrollLoading.js"></script>
+        <script src="/dataclouds/vendor/scrollLoading/main.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/dataclouds/js/main.js"></script>
+
+    </div>
+</body>
+</html>

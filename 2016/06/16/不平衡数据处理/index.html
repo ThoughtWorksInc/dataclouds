@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    
+    <title>不平衡数据处理 | DataClouds@ThoughtWorks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="" />
+    
+    <meta name="description" content="传统统计方法往往是抽样统计，样本一般是经过精心挑选，这样的样本往往满足一定的条件。但是在大数据下，更倾向于全量数据分析，而非抽样统计，全量数据带来的问题除了数据量大导致的问题之外还有另外一些问题，例如数据错误率高，数据不平衡等，今天要讲到的就是在全量数据下，对于不平衡数据的处理。
+在处理不平衡数据前，首先要明确，何谓不平衡数据（imbalanced dataset），不平衡数据分为两种：
+
+类间的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="不平衡数据处理">
+<meta property="og:url" content="http://http://thoughtworksinc.github.io/2016/06/16/不平衡数据处理/index.html">
+<meta property="og:site_name" content="DataClouds@ThoughtWorks">
+<meta property="og:description" content="传统统计方法往往是抽样统计，样本一般是经过精心挑选，这样的样本往往满足一定的条件。但是在大数据下，更倾向于全量数据分析，而非抽样统计，全量数据带来的问题除了数据量大导致的问题之外还有另外一些问题，例如数据错误率高，数据不平衡等，今天要讲到的就是在全量数据下，对于不平衡数据的处理。
+在处理不平衡数据前，首先要明确，何谓不平衡数据（imbalanced dataset），不平衡数据分为两种：
+
+类间的">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/50828-6db9a3815b9fa203.png?imageMogr2/auto-orient/strip%7CimageView2/2">
+<meta property="og:updated_time" content="2016-06-19T16:11:37.279Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="不平衡数据处理">
+<meta name="twitter:description" content="传统统计方法往往是抽样统计，样本一般是经过精心挑选，这样的样本往往满足一定的条件。但是在大数据下，更倾向于全量数据分析，而非抽样统计，全量数据带来的问题除了数据量大导致的问题之外还有另外一些问题，例如数据错误率高，数据不平衡等，今天要讲到的就是在全量数据下，对于不平衡数据的处理。
+在处理不平衡数据前，首先要明确，何谓不平衡数据（imbalanced dataset），不平衡数据分为两种：
+
+类间的">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/50828-6db9a3815b9fa203.png?imageMogr2/auto-orient/strip%7CimageView2/2">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/dataclouds/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/dataclouds/vendor/titillium-web/styles.css">
+    <link rel="stylesheet" href="/dataclouds/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/dataclouds/css/style.css">
+
+    <script src="/dataclouds/vendor/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/dataclouds/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <link rel="stylesheet" href="/dataclouds/vendor/scrollLoading/style.css">
+    
+    
+    
+
+</head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/dataclouds/" class="logo"></a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/dataclouds/">Inici</a>
+                                </li>
+                            
+                                        
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/dataclouds/about/index.html">Quant a</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Cercar" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'categories',
+            TAGS: 'etiquetes',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/dataclouds/',
+        CONTENT_URL: '/dataclouds/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/dataclouds/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    Sense categoria
+    </h1>
+</div>
+                        <div class="main-body-content">
+                            <article id="post-不平衡数据处理" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        不平衡数据处理
+        </h1>
+    
+
+            </header>
+        
+        <div class="article-subtitle">
+            <a href="/dataclouds/2016/06/16/不平衡数据处理/" class="article-date">
+    <time datetime="2016-06-16T19:34:12.000Z" itemprop="datePublished">2016-06-16</time>
+</a>
+            
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <p>传统统计方法往往是抽样统计，样本一般是经过精心挑选，这样的样本往往满足一定的条件。但是在大数据下，更倾向于全量数据分析，而非抽样统计，全量数据带来的问题除了数据量大导致的问题之外还有另外一些问题，例如数据错误率高，数据不平衡等，今天要讲到的就是在全量数据下，对于不平衡数据的处理。</p>
+<p>在处理不平衡数据前，首先要明确，何谓不平衡数据（imbalanced dataset），不平衡数据分为两种：</p>
+<ul>
+<li>类间的不均衡：不同类别之间样本数量差距太大，例如类别A占了总样本99.9%，其他类别只占据了0.1%。</li>
+<li>类内不均衡：少数类样本集中也许还包含一个少数有限样本的子集。</li>
+</ul>
+<p>为什么对不平衡数据的研究是相当重要的，举个简单的例子，假设我们有一批数据，里面包含一个人的身体信息以及是否患有癌症，根据数据能够发现99%的人都没有癌症，1％的人患有癌症，现在需要依据这一批数据来预测一个人是否患有癌症，可以通过投机取巧发现一点： <code>不用做任何预测，直接判断这个人未患有癌症</code>  其准确率就可以达到99%，而通过机器学习等方法训练出的模型来预测，效果反而还不如直接判断的准确率高。这样的情况，不是我们所希望看到的，造成这样的问题，其根本原因在于数据类别之间的比率差距太大，这就是不平衡数据带来的一系列问题。在大多数情况下，我们面临的都是不平衡数据，包括但不限于如下领域：</p>
+<ul>
+<li>医疗诊断</li>
+<li>文本分类</li>
+<li>检测石油泄漏的雷达图像</li>
+<li>信息检索</li>
+</ul>
+<p>因此相比对数据分析，如何对不平衡数据进行处理，似乎已经成了一项必须要做的事情，当不同类别数据比例达到100:1，1000:1，10000:1，并且在每一个案例中，一个类严重代表另一个类别，那么就必须要进行平衡处理。针对不平衡数据的处理方法目前有很多种，但是归纳下来几乎都可以总结为如下两种：</p>
+<ul>
+<li><p>对数据本身做处理：既然数据是不平衡的，那么就对数据进行重采样，将小分类数据按照一定策略进行重采样，将其增大，但是存在 <code>过拟合</code> 的的风险，另一种是抽样将大分类抽取数据，使其和小分类差不多，但是存在 <code>欠拟合</code>的风险。</p>
+</li>
+<li><p>对使用的算法进行处理：从算法的角度出发，考虑不同误分类情况代价的差异性对算法进行优化，对错误的数据进行加权再处理。</p>
+</li>
+</ul>
+<h5 id="基于数据的处理方式"><a href="#基于数据的处理方式" class="headerlink" title="基于数据的处理方式"></a>基于数据的处理方式</h5><ol>
+<li>随机采样<br>顾名思义，随机采样就是将样本随机的抽取一些数据，再和原来的数据组成新的数据，随机采样分为两种：</li>
+</ol>
+<ul>
+<li>随机过采样：从多数类别数据$S_maj$中，随机抽取大小和少数类别差不多的数据$E$，再和少数类别组合成新的训练集：$S_min+E$</li>
+<li>随机欠采样：从少的数组集$S_min$中，随机抽取部分数据$E$，再和原来数据混合，不停重复此步骤，直到最终少数类别数据和多数类别数据大小差不多，产生新的数据集$S_maj+E$。抽取数据的方式也分为两种：<code>有放回</code> 和 <code>无放回</code></li>
+</ul>
+<ol>
+<li>smote<br>随机采样是对不平衡数据最直接简单粗暴的做法，不可避免的会造成过拟合或者欠拟合的情况，目前来说还没有一种通用的解决方案，能够同时处理过拟合的问题又可以解决欠拟合的问题，所以每一种情况都被独立开来，例如smote通过修改随机欠采样方法，对少数类样本进行分析并根据少数类样本人工合成新样本添加到数据集中，有效的处理了数据过拟合的问题。smote算法的思想是合成新的少数类样本，合成的策略是对每个少数类样本a，从它的最近邻中随机选一个样本b，然后在a、b之间的连线上随机选一点作为新合成的少数类样本，过程如下：</li>
+</ol>
+<ul>
+<li>对于少数类中每一个样本$x$，以欧氏距离为标准计算它到少数类样本集$S_min$中所有样本的距离，得到其k近邻。</li>
+<li>根据样本不平衡比例设置一个采样比例以确定采样倍率$N$，对于每一个少数类样本$x$，从其k近邻中随机选择若干个样本，假设选择的近邻为$\hat{x}$。</li>
+<li><p>对于每一个随机选出的近邻$\hat{x}$，分别与原样本按照如下的公式构建新的样本。 <img src="http://upload-images.jianshu.io/upload_images/50828-6db9a3815b9fa203.png?imageMogr2/auto-orient/strip%7CimageView2/2" alt=""></p>
+<p>论文提供了伪代码实现：<img src="http://img.blog.csdn.net/20150922095710042" alt=""></p>
+</li>
+</ul>
+<ol>
+<li><p>Random forests<br>smote解决的是过拟合的问题，还存在一种情况是欠拟合，类似于 <code>随机森林</code> 这样的算法，就是用来解决欠拟合的情况，随机森林构建于决策树之上，顾名思义，就是随机的构建一个包含多个决策树的森林。随机森林里的决策树之间是独立的，在随机森林模型构建好以后，对于新来的测试样本数据，随机森林模型会让其中的每个决策树分别做一次预测，然后统计出现此处最多的预测标签，并将它作为最终的预测标签。随机森林算法运用的就是集成学习的思想，在实践中，随机森林往往都有很好表现，并且多次预测结果稳定并且精度非常高，决策树在生成的过程当中分别在行方向和列方向上添加随机过程，行方向上构建决策树时采用放回抽样（bootstraping）得到训练数据，列方向上采用无放回随机抽样得到特征子集，并据此得到其最优切分点，这便是随机森林算法的基本原理。下图给出了随机森林算法分类原理，从图中可以看到，随机森林是一个组合模型，内部仍然是基于决策树，同单一的决策树分类不同的是，随机森林通过多个决策树投票结果进行分类，算法不容易出现过度拟合问题。<img src="http://www.ibm.com/developerworks/cn/opensource/os-cn-spark-random-forest/img003.png" alt=""></p>
+</li>
+<li><p>easy ensemble<br>easy ensemble每次从多数类中抽样出和少数类数目差不多的样本，然后和少数类样本组合作为训练集。在这个训练集上学习一个adaboost分类器。 最后预测的时候，是使用之前学习到的所有adaboost中的弱分类器（就是每颗决策树）的预测结果向量（每个树给的结果组成一个向量）和对应的权重向量做内积，然后减去阈值，根据差的符号确定样本的类别。easy ensemble 算法被认为是非监督学习算法，因此它每次都独立利用可放回随机抽样机制来提取多数类样本</p>
+</li>
+<li><p>balance cascade<br>balance cascade算法是一种级联算法，BalanceCascade从多数类$S_maj$中有效地选择N且满足$\midN\mid=\midS_min\mid$，将N和$\S_min$合并为新的数据集进行训练，新训练集对每个多数类样本$x_i$进行预测若预测对则$S_maj=S_maj-x_i$。依次迭代直到满足某一停止条件，最终的模型是多次迭代模型的组合。所以balance cascade的核心思想是：</p>
+</li>
+</ol>
+<ul>
+<li>使用之前已形成的集成分类器来为下一次训练选择多类样本</li>
+<li>然后再进行欠抽样</li>
+</ul>
+<h5 id="基于算法的处理方式"><a href="#基于算法的处理方式" class="headerlink" title="基于算法的处理方式"></a>基于算法的处理方式</h5><p>前面讲到对数据集做处理，解决不平衡数据集的问题，我个人认为这不是一种好的方案，特别是在实时数据处理的情景下。因此目前还有一种基于算法处理的方式，使用算法处理不平衡数据主要是基于代价敏感学习，而价敏感学习方法的核心要素是代价矩阵。我们注意到在实际的应用中不同类型的误分类情况导致的代价是不一样的，例如在医疗中，“将病人误疹为健康人”和“将健康人误疹为病人”的代价不同；在信用卡盗用检测中，“将盗用误认为正常使用”与“将正常使用识破认为盗用”的代价也不相同，因此我们定义代价矩阵如下图所示。标记$C_ij$为将类别j误分类为类别i的代价，显然$C_00=C_11=0$，$C_01,C_10$为两种不同的误分类代价，当$C_01＝C_10$的时候，是代价不敏感。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/50828-7e3be9c5ffefa292.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>基于以上代价矩阵的分析，代价敏感学习方法主要有以下三种实现方式，分别是：</p>
+<ol>
+<li><p>从学习模型出发，着眼于对某一具体学习方法的改造，使之能适应不平衡数据下的学习，研究者们针对不同的学习模型如感知机，支持向量机，决策树，神经网络等分别提出了其代价敏感的版本。以代价敏感的决策树为例，可从三个方面对其进行改进以适应不平衡数据的学习，这三个方面分别是决策阈值的选择方面、分裂标准的选择方面、剪枝方面，这三个方面中都可以将代价矩阵引入。</p>
+</li>
+<li><p>从贝叶斯风险理论出发，把代价敏感学习看成是分类结果的一种后处理，按照传统方法学习到一个模型，以实现损失最小为目标对结果进行调整，优化公式如下所示。此方法的优点在于它可以不依赖所用具体的分类器，但是缺点也很明显它要求分类器输出值为概率。<br><img src="http://upload-images.jianshu.io/upload_images/50828-cd2dfca4f0e2c807.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+</li>
+<li><p>从预处理的角度出发，将代价用于权重的调整，使得分类器满足代价敏感的特性。<br><img src="http://www.analyticsvidhya.com/wp-content/uploads/2015/11/bigd.png" alt=""><br>上图是一个基于权重调节的方式，从图中可以看到，在Box1的时候，通过分类器D1，将左边的加号识别出了，但是右边的三个蓝色的加号并没有被正常的识别，因此对其进行加权。在进行第二轮也就是Box2中，D2分类器未识别出的三个红色减号，也对其加权，带圆框的表示识别错误，经过n此迭代之后，最终在Box4中对多个结果进行合并，得到正确的结果。</p>
+</li>
+</ol>
+<h5 id="不平衡数据处理的评价方法"><a href="#不平衡数据处理的评价方法" class="headerlink" title="不平衡数据处理的评价方法"></a>不平衡数据处理的评价方法</h5><p>通过不平衡数据处理训练出的模型后，需要去检测模型的准确度，也就是选取模型的评价方法。对于评价模型的算法性能，很多人第一时间反应是正确率，但是对于不平衡数据下的模型，这一类方法并不适用，因为模型直接把数据归类给多数类，就能够达到很高的正确率了，所以对于这一类模型，ROC分析方法更加合适，ROC曲线描述的是混淆矩阵中FPR（FP rate）和TPR两个量之间的相对变化关系，那么何谓混淆矩阵？如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th>Tables</th>
+<th style="text-align:center">positive</th>
+<th style="text-align:right">negative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>positive</td>
+<td style="text-align:center">TP (true positive)</td>
+<td style="text-align:right">FP (false positive)</td>
+</tr>
+<tr>
+<td>negative</td>
+<td style="text-align:center">FN (false negative)</td>
+<td style="text-align:right">TN (true negative)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>TP——将正类预测为正类数。</li>
+<li>FN——将正类预测为负类数。</li>
+<li>FP——将负类预测为正类数。</li>
+<li>TN——将负类预测为负类数。</li>
+</ul>
+<p>以二元分类器为研究对象，上面的混淆矩阵显示了一个分类器可能遇到的所有情况，其中列对应于样本实际的类别，行对应于样本被预测的类别，其中考虑一个二分问题，即将实例分成正类（positive）或负类（negative）。对一个二分问题来说，会出现四种情况。如果一个实例是正类并且也被 预测成正类，即为真正类（True positive）,如果实例是负类被预测成正类，称之为假正类（False positive）。相应地，如果实例是负类被预测成负类，称之为真负类（True negative）,正类被预测成负类则为假负类（false negative），这四个基本指标可以衍生出多个分类器指标，包括常用的评价指标是精确率和召回率，定义如下：</p>
+<ul>
+<li>精确率：<img src="http://www.bucry.com/usr/uploads/2016/06/4071485463.png" alt=""></li>
+<li>召回率：<img src="http://www.bucry.com/usr/uploads/2016/06/23188038.png" alt=""></li>
+<li>F值：<img src="http://www.bucry.com/usr/uploads/2016/06/2085633507.png" alt=""></li>
+</ul>
+<p>其中F值，是召回率和精确率的均值，如果二元分类器给出的是对正样本的一个分类概率，那么通过设定不同的阈值，可以得到不同的混淆矩阵，而每个混淆矩阵都对应于ROC曲线上的一个点。将这些点描绘出来可以得到一条平滑的曲线，这时，我们可以用曲线所包围的面积，即AUC，来评估该二元分类器的可信度，如下图所示：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/50828-c4dfff61e3ad58fa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>通过上面的曲线图，可以发现，大于这个阀值的，判定为正，小于这个阀值的，判定为负，如果减小这个阀值，肯定能够识别更多的正，但是同时也会增加将负判定为正的情况，ROC曲线就形象的描述了这一行为，因此ROC曲线可以用于评价一个分类器。</p>
+<h5 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h5><p><a href="http://www.jianshu.com/p/3e8b9f2764c8" target="_blank" rel="external">http://www.jianshu.com/p/3e8b9f2764c8</a><br><a href="http://www.di.unipi.it/~cardillo/AA0304/fabio/boosting.pdf" target="_blank" rel="external">http://www.di.unipi.it/~cardillo/AA0304/fabio/boosting.pdf</a><br><a href="http://pages.stern.nyu.edu/~fprovost/Papers/skew.PDF" target="_blank" rel="external">http://pages.stern.nyu.edu/~fprovost/Papers/skew.PDF</a><br><a href="http://scikit-learn.org/stable/auto_examples/ensemble/plot_adaboost_twoclass.html" target="_blank" rel="external">http://scikit-learn.org/stable/auto_examples/ensemble/plot_adaboost_twoclass.html</a><br><a href="https://www.jair.org/media/953/live-953-2037-jair.pdf" target="_blank" rel="external">https://www.jair.org/media/953/live-953-2037-jair.pdf</a><br><a href="http://cse.seu.edu.cn/people/xyliu/publication/tsmcb09.pdf" target="_blank" rel="external">http://cse.seu.edu.cn/people/xyliu/publication/tsmcb09.pdf</a><br><a href="https://www.jair.org/media/953/live-953-2037-jair.pdf" target="_blank" rel="external">https://www.jair.org/media/953/live-953-2037-jair.pdf</a><br><a href="http://www.ibm.com/developerworks/cn/opensource/os-cn-spark-random-forest/" target="_blank" rel="external">http://www.ibm.com/developerworks/cn/opensource/os-cn-spark-random-forest/</a></p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://http://thoughtworksinc.github.io/dataclouds/2016/06/16/不平衡数据处理/" data-id="cipmsk7dd0001mid3p22jpfe8" class="article-share-link"><i class="fa fa-share"></i>Compartir</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>seguir:</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="/dataclouds/" target="_blank">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/dataclouds/" target="_blank">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="google-plus" href="/dataclouds/" target="_blank">
+                        <i class="icon fa fa-google-plus"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/ppoffice/hexo-theme-hueman" target="_blank">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/dataclouds/" target="_blank">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/dataclouds/" target="_blank">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+    
+        <a href="/dataclouds/2016/06/06/走进数据时代/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">antic</strong>
+        <p class="article-nav-title">走进数据时代</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">recents</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/dataclouds/2016/06/16/不平衡数据处理/" class="thumbnail">
+    
+    
+        <span style="background-image:url(http://upload-images.jianshu.io/upload_images/50828-6db9a3815b9fa203.png?imageMogr2/auto-orient/strip%7CimageView2/2)" alt="不平衡数据处理" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/dataclouds/2016/06/16/不平衡数据处理/" class="title">不平衡数据处理</a></p>
+                            <p class="item-date"><time datetime="2016-06-16T19:34:12.000Z" itemprop="datePublished">2016-06-16</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/dataclouds/2016/06/06/走进数据时代/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/dataclouds/2016/06/06/走进数据时代/" class="title">走进数据时代</a></p>
+                            <p class="item-date"><time datetime="2016-06-06T11:01:41.000Z" itemprop="datePublished">2016-06-06</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/dataclouds/2016/06/03/如何自动测试和发布Scala库/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/dataclouds/2016/06/03/如何自动测试和发布Scala库/build-passing-icon.png)" alt="如何自动测试和发布Scala库" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/dataclouds/2016/06/03/如何自动测试和发布Scala库/" class="title">如何自动测试和发布Scala库</a></p>
+                            <p class="item-date"><time datetime="2016-06-03T17:38:38.000Z" itemprop="datePublished">2016-06-03</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/dataclouds/2016/06/03/decrypt-deep-learning/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/dataclouds/2016/06/03/decrypt-deep-learning/0.png)" alt="写给程序员的深度学习 之 深度学习解密" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/dataclouds/2016/06/03/decrypt-deep-learning/" class="title">写给程序员的深度学习 之 深度学习解密</a></p>
+                            <p class="item-date"><time datetime="2016-06-03T16:33:06.000Z" itemprop="datePublished">2016-06-03</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">arxius</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/dataclouds/archives/2016/06/">June 2016</a><span class="archive-list-count">4</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">etiquetes</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/dataclouds/tags/Deep-Learning/">Deep Learning</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">etiqueta cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/dataclouds/tags/Deep-Learning/" style="font-size: 10px;">Deep Learning</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">links</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io">Hexo</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/dataclouds/" class="logo"></a>
+                </h1>
+                <p>&copy; 2016 DataClouds</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://http://thoughtworksinc.github.io/dataclouds/2016/06/16/不平衡数据处理/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+    
+        <script src="/dataclouds/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+    
+        <script src="/dataclouds/vendor/scrollLoading/jquery.scrollLoading.js"></script>
+        <script src="/dataclouds/vendor/scrollLoading/main.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/dataclouds/js/main.js"></script>
+
+    </div>
+</body>
+</html>
